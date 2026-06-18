@@ -4,6 +4,7 @@ import { loadSpecs } from './data/loadSpecs'
 import { buildGraph } from './lib/openapi'
 import GraphView from './components/GraphView'
 import DetailsPanel from './components/DetailsPanel'
+import Highlight from './components/Highlight'
 import './App.css'
 
 function getInitialTheme() {
@@ -176,8 +177,14 @@ export default function App() {
                 >
                   <span className={`dot dot-${m.kind}`} />
                   <div className="result-text">
-                    <div className="result-label">{m.label}</div>
-                    {m.meta.summary && <div className="result-sub">{m.meta.summary}</div>}
+                    <div className="result-label">
+                      <Highlight text={m.label} query={query} />
+                    </div>
+                    {m.meta.summary && (
+                      <div className="result-sub">
+                        <Highlight text={m.meta.summary} query={query} />
+                      </div>
+                    )}
                   </div>
                 </li>
               ))}
@@ -226,7 +233,12 @@ export default function App() {
         </main>
 
         <aside className={`detail-pane ${detailOpen ? '' : 'collapsed'}`}>
-          <DetailsPanel graph={filteredGraph} node={selectedNode} onSelect={select} />
+          <DetailsPanel
+            graph={filteredGraph}
+            node={selectedNode}
+            query={query}
+            onSelect={select}
+          />
         </aside>
       </div>
 

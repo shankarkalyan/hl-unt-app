@@ -257,6 +257,14 @@
 .result-text {
   min-width: 0;
 }
+
+mark.hl {
+  background: var(--hl-bg);
+  color: var(--hl-text);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-weight: 600;
+}
 .result-label {
   font-size: 13px;
   font-weight: 500;

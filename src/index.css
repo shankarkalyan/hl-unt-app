@@ -21,6 +21,8 @@
   --danger-text: #b91c1c;
   --code-bg: #0f172a;
   --code-text: #e2e8f0;
+  --hl-bg: #fde047;
+  --hl-text: #1f2937;
   --graph-bg: #ffffff;
   --grid-dot: #e2e8f0;
   --node-stroke: #ffffff;
@@ -57,6 +59,8 @@
   --danger-text: #f87171;
   --code-bg: #0d0d0d;
   --code-text: #e4e4e7;
+  --hl-bg: #fbbf24;
+  --hl-text: #000000;
   --graph-bg: #000000;
   --grid-dot: #1a1a1a;
   --node-stroke: #000000;

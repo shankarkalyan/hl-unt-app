@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getRelations } from '../lib/openapi'
+import Highlight from './Highlight'
 
 /**
  * @param {{
  *   graph: import('../lib/openapi').Graph,
  *   node: import('../lib/openapi').GraphNode | null,
+ *   query?: string,
  *   onSelect: (id: string) => void,
  * }} props
  */
-export default function DetailsPanel({ graph, node, onSelect }) {
+export default function DetailsPanel({ graph, node, query = '', onSelect }) {
   const [expanded, setExpanded] = useState(false)
 
   // Close the maximized popup with Escape.
@@ -54,7 +56,9 @@ export default function DetailsPanel({ graph, node, onSelect }) {
           .map(([k, v]) => (
             <div key={k}>
               <dt>{k}</dt>
-              <dd>{v}</dd>
+              <dd>
+                <Highlight text={v} query={query} />
+              </dd>
             </div>
           ))}
       </dl>
@@ -82,7 +86,9 @@ export default function DetailsPanel({ graph, node, onSelect }) {
               ⛶
             </button>
           </div>
-          <h2>{node.label}</h2>
+          <h2>
+            <Highlight text={node.label} query={query} />
+          </h2>
           <div className="source">📄 {node.source}</div>
         </div>
         {body}
@@ -100,7 +106,9 @@ export default function DetailsPanel({ graph, node, onSelect }) {
               <div className="modal-header">
                 <div className="modal-title">
                   <span className={`badge badge-${node.kind}`}>{node.kind}</span>
-                  <h2>{node.label}</h2>
+                  <h2>
+            <Highlight text={node.label} query={query} />
+          </h2>
                   <span className="modal-source">📄 {node.source}</span>
                 </div>
                 <div className="modal-actions">
