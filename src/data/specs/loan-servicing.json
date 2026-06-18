@@ -1,0 +1,288 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Home Lending — Loan Servicing",
+    "version": "1.0.0",
+    "description": "Servicing API for funded mortgages: loans, payments, escrow, and statements. Sample JSON spec for the schema graph."
+  },
+  "paths": {
+    "/loans": {
+      "get": {
+        "operationId": "listLoans",
+        "summary": "List serviced loans",
+        "tags": ["loans"],
+        "responses": {
+          "200": {
+            "description": "A page of loans",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoanList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{loanId}": {
+      "get": {
+        "operationId": "getLoan",
+        "summary": "Get a serviced loan by id",
+        "tags": ["loans"],
+        "parameters": [
+          { "name": "loanId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A loan",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Loan" }
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{loanId}/payments": {
+      "get": {
+        "operationId": "listPayments",
+        "summary": "List payments for a loan",
+        "tags": ["payments"],
+        "parameters": [
+          { "name": "loanId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment history",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaymentList" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "makePayment",
+        "summary": "Make a payment on a loan",
+        "tags": ["payments"],
+        "parameters": [
+          { "name": "loanId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Payment" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment recorded",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Payment" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{loanId}/escrow": {
+      "get": {
+        "operationId": "getEscrowAccount",
+        "summary": "Get the escrow account for a loan",
+        "tags": ["escrow"],
+        "parameters": [
+          { "name": "loanId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "An escrow account",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EscrowAccount" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{loanId}/statements": {
+      "get": {
+        "operationId": "listStatements",
+        "summary": "List monthly statements for a loan",
+        "tags": ["statements"],
+        "parameters": [
+          { "name": "loanId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statements",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatementList" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Loan": {
+        "type": "object",
+        "description": "A funded mortgage being serviced",
+        "required": ["id", "status", "principalBalance"],
+        "properties": {
+          "id": { "type": "string" },
+          "applicationId": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["current", "delinquent", "default", "paid_off", "in_foreclosure"]
+          },
+          "originalAmount": { "type": "number" },
+          "principalBalance": { "type": "number" },
+          "interestRate": { "type": "number" },
+          "termMonths": { "type": "integer" },
+          "borrower": { "$ref": "#/components/schemas/Borrower" },
+          "propertyAddress": { "$ref": "#/components/schemas/Address" },
+          "escrow": { "$ref": "#/components/schemas/EscrowAccount" },
+          "amortization": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AmortizationEntry" }
+          }
+        }
+      },
+      "LoanList": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Loan" } },
+          "nextPage": { "type": "string" }
+        }
+      },
+      "Borrower": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "mailingAddress": { "$ref": "#/components/schemas/Address" }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": { "type": "string" },
+          "unit": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "zip": { "type": "string" }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "description": "A payment applied to a loan",
+        "required": ["amount", "date"],
+        "properties": {
+          "id": { "type": "string" },
+          "date": { "type": "string", "format": "date" },
+          "amount": { "type": "number" },
+          "method": {
+            "type": "string",
+            "enum": ["ach", "check", "wire", "card", "auto_draft"]
+          },
+          "allocation": { "$ref": "#/components/schemas/PaymentAllocation" }
+        }
+      },
+      "PaymentAllocation": {
+        "type": "object",
+        "description": "How a payment is split across the loan",
+        "properties": {
+          "principal": { "type": "number" },
+          "interest": { "type": "number" },
+          "escrow": { "type": "number" },
+          "lateFee": { "type": "number" }
+        }
+      },
+      "PaymentList": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Payment" } },
+          "nextPage": { "type": "string" }
+        }
+      },
+      "EscrowAccount": {
+        "type": "object",
+        "description": "Escrow account holding taxes and insurance",
+        "properties": {
+          "balance": { "type": "number" },
+          "monthlyEscrow": { "type": "number" },
+          "disbursements": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EscrowDisbursement" }
+          }
+        }
+      },
+      "EscrowDisbursement": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["property_tax", "homeowners_insurance", "pmi", "flood_insurance"]
+          },
+          "payee": { "type": "string" },
+          "amount": { "type": "number" },
+          "dueDate": { "type": "string", "format": "date" }
+        }
+      },
+      "AmortizationEntry": {
+        "type": "object",
+        "properties": {
+          "paymentNumber": { "type": "integer" },
+          "dueDate": { "type": "string", "format": "date" },
+          "principal": { "type": "number" },
+          "interest": { "type": "number" },
+          "remainingBalance": { "type": "number" }
+        }
+      },
+      "Statement": {
+        "type": "object",
+        "description": "A monthly billing statement",
+        "properties": {
+          "id": { "type": "string" },
+          "periodStart": { "type": "string", "format": "date" },
+          "periodEnd": { "type": "string", "format": "date" },
+          "amountDue": { "type": "number" },
+          "dueDate": { "type": "string", "format": "date" },
+          "allocation": { "$ref": "#/components/schemas/PaymentAllocation" }
+        }
+      },
+      "StatementList": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Statement" } },
+          "nextPage": { "type": "string" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "integer" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}

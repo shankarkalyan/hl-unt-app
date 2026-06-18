@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: Home Lending — Loan Origination
+  version: 1.0.0
+  description: >
+    Origination API for home mortgage applications: borrowers, properties,
+    finances, credit, and underwriting. Sample data for the schema graph.
+paths:
+  /applications:
+    get:
+      operationId: listApplications
+      summary: List loan applications
+      tags: [applications]
+      responses:
+        '200':
+          description: A page of loan applications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationList'
+    post:
+      operationId: createApplication
+      summary: Start a new loan application
+      tags: [applications]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanApplication'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplication'
+        default:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /applications/{applicationId}:
+    get:
+      operationId: getApplication
+      summary: Get a loan application by id
+      tags: [applications]
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A loan application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplication'
+  /applications/{applicationId}/borrowers:
+    post:
+      operationId: addBorrower
+      summary: Add a borrower to an application
+      tags: [borrowers]
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Borrower'
+      responses:
+        '201':
+          description: Borrower added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrower'
+  /applications/{applicationId}/underwriting:
+    post:
+      operationId: runUnderwriting
+      summary: Run an underwriting decision
+      tags: [underwriting]
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Underwriting decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnderwritingDecision'
+  /properties/{propertyId}:
+    get:
+      operationId: getProperty
+      summary: Get a property
+      tags: [properties]
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+components:
+  schemas:
+    LoanApplication:
+      type: object
+      description: A home mortgage loan application
+      required: [id, status, loanAmount]
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [draft, submitted, processing, approved, denied, withdrawn]
+        loanAmount:
+          type: number
+        loanPurpose:
+          type: string
+          enum: [purchase, refinance, cash_out_refinance, home_equity]
+        product:
+          $ref: '#/components/schemas/LoanProduct'
+        borrowers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Borrower'
+        property:
+          $ref: '#/components/schemas/Property'
+        underwriting:
+          $ref: '#/components/schemas/UnderwritingDecision'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+    ApplicationList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanApplication'
+        nextPage:
+          type: string
+    Borrower:
+      type: object
+      description: A person applying for the loan
+      required: [firstName, lastName]
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        ssn:
+          type: string
+        currentAddress:
+          $ref: '#/components/schemas/Address'
+        employment:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employment'
+        income:
+          type: array
+          items:
+            $ref: '#/components/schemas/Income'
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Liability'
+        creditReport:
+          $ref: '#/components/schemas/CreditReport'
+    Property:
+      type: object
+      description: The property being financed
+      properties:
+        id:
+          type: string
+        propertyType:
+          type: string
+          enum: [single_family, condo, townhouse, multi_family, manufactured]
+        occupancy:
+          type: string
+          enum: [primary, secondary, investment]
+        address:
+          $ref: '#/components/schemas/Address'
+        appraisal:
+          $ref: '#/components/schemas/Appraisal'
+    Appraisal:
+      type: object
+      properties:
+        appraisedValue:
+          type: number
+        appraisalDate:
+          type: string
+          format: date
+        appraiserLicense:
+          type: string
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        unit:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+    Employment:
+      type: object
+      properties:
+        employerName:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+          format: date
+        monthlyIncome:
+          type: number
+        employerAddress:
+          $ref: '#/components/schemas/Address'
+    Income:
+      type: object
+      properties:
+        source:
+          type: string
+          enum: [base, bonus, commission, overtime, rental, other]
+        monthlyAmount:
+          type: number
+    Asset:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [checking, savings, retirement, investment, gift]
+        institution:
+          type: string
+        balance:
+          type: number
+    Liability:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [credit_card, auto_loan, student_loan, mortgage, other]
+        creditor:
+          type: string
+        monthlyPayment:
+          type: number
+        balance:
+          type: number
+    CreditReport:
+      type: object
+      properties:
+        bureau:
+          type: string
+          enum: [equifax, experian, transunion]
+        ficoScore:
+          type: integer
+        pulledDate:
+          type: string
+          format: date
+        tradelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/Liability'
+    LoanProduct:
+      type: object
+      description: The mortgage product being offered
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        loanType:
+          type: string
+          enum: [conventional, fha, va, usda, jumbo]
+        termMonths:
+          type: integer
+        rateType:
+          type: string
+          enum: [fixed, arm]
+        interestRate:
+          type: number
+    UnderwritingDecision:
+      type: object
+      description: The result of underwriting the application
+      properties:
+        decision:
+          type: string
+          enum: [approved, approved_with_conditions, suspended, denied]
+        decisionDate:
+          type: string
+          format: date
+        dtiRatio:
+          type: number
+        ltvRatio:
+          type: number
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+    Condition:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        clearedBy:
+          type: string
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [pay_stub, w2, bank_statement, tax_return, id, appraisal, other]
+        fileName:
+          type: string
+        uploadedDate:
+          type: string
+          format: date
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string

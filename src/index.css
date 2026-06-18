@@ -1,0 +1,102 @@
+/* ============================================================
+   Theme tokens — light (default) and true-black dark mode.
+   Toggled via  <html data-theme="dark">  from App.jsx.
+   ============================================================ */
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-weak: #eff5ff;
+  --accent-contrast: #ffffff;
+  --schema: #3b82f6;
+  --operation: #f59e0b;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --danger-text: #b91c1c;
+  --code-bg: #0f172a;
+  --code-text: #e2e8f0;
+  --graph-bg: #ffffff;
+  --grid-dot: #e2e8f0;
+  --node-stroke: #ffffff;
+  --node-stroke-selected: #0f172a;
+  --link: #cbd5e1;
+  --graph-text: #334155;
+  --graph-halo: #ffffff;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.06);
+  --radius: 12px;
+
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme='dark'] {
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #0f0f0f;
+  --surface-hover: #1a1a1a;
+  --border: #1f1f1f;
+  --border-strong: #2e2e2e;
+  --text: #f4f4f5;
+  --text-muted: #8b8b93;
+  --accent: #5b8dff;
+  --accent-weak: #11192e;
+  --accent-contrast: #ffffff;
+  --schema: #5b8dff;
+  --operation: #fbbf24;
+  --danger-bg: #1f0d0d;
+  --danger-border: #4c1d1d;
+  --danger-text: #f87171;
+  --code-bg: #0d0d0d;
+  --code-text: #e4e4e7;
+  --graph-bg: #000000;
+  --grid-dot: #1a1a1a;
+  --node-stroke: #000000;
+  --node-stroke-selected: #ffffff;
+  --link: #333333;
+  --graph-text: #c4c4cc;
+  --graph-halo: #000000;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+  border: 2px solid var(--surface);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
